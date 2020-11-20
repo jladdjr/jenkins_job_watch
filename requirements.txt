@@ -1,0 +1,3 @@
+coloredlogs==14.0
+git+https://github.com/jladdjr/jenkinsapi@skip_validation_when_disabled
+PyYAML==5.3.1
