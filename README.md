@@ -1,5 +1,7 @@
 # jenkins_job_watch
 
+Collects (scrapes) failures from jenkins console output.
+
 ## Requirements
 
 `pip install -U -r requirements.txt`
