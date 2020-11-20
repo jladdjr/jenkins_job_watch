@@ -20,7 +20,8 @@ DEFAULT_JOB = 'Test_Tower_Yolo_Express'
 
 parser = argparse.ArgumentParser(description='Watch results of jenkins build')
 parser.add_argument('--build', dest='build', type=int, required=True, help='Build id')
-parser.add_argument('--job', dest='job', type=int, required=True, help='Job name')
+parser.add_argument('--job', dest='job', type=int, help='Job name')
+parser.add_argument('--sorted', dest='sort_results', action="store_true", help='Sort results')
 parser.add_argument('--jenkins-host', dest='jenkins_host', help='jenkins url')
 parser.add_argument('--jenkins-username', dest='jenkins_username', help='jenkins username')
 parser.add_argument('--jenkins-api-token', dest='jenkins_api_token', help='jenkins api token')
@@ -52,11 +53,12 @@ class Credentials:
 creds = Credentials(args.jenkins_host, args.jenkins_username, args.jenkins_api_token)
 
 class Config:
-    def __init__(self, job=None, build=None):
+    def __init__(self, job=None, build=None, sort_results=None):
         self.job = job
         self.build = build
+        self.sort_results = sort_results
 
-config = Config(args.job, args.build)
+config = Config(args.job, args.build, args.sort_results)
 
 def load_missing_options_from_file(creds, config):
     """Update any missing credentials using any found in config file"""
@@ -116,6 +118,23 @@ def get_build_metadata(build, suppress_description=False):
     desc.append(f"{str(build.get_timestamp().date())}")
     return '\n'.join(desc)
 
+def get_console_output(build):
+    logger.info(f'getting console output for build {build.get_number()}')
+    return build.get_console()
+
+def filter_failures(console_output):
+    failures = []
+
+    for line in console_output.split('\n'):
+        logger.debug(f'parsing line: {line}')
+        if 'FAILED tests' in line:
+            logger.debug(f' .. line shows a failure')
+            # strip all text except testcase name
+            index = line.rindex('::') + 2
+            failure = line[index:].strip()
+            failures.append(failure)
+    return set(failures)  # ensure failures are unique
+
 if __name__ == "__main__":
     load_missing_options_from_file(creds, config)
     server = get_server_instance(creds)
@@ -123,3 +142,12 @@ if __name__ == "__main__":
 
     print("Getting results for:")
     print(get_build_metadata(build) + '\n')
+
+    console_output = get_console_output(build)
+    failures = filter_failures(console_output)
+    if config.sort_results:
+        failures = sorted(failures)
+
+    print(f'Failures:')
+    for index, failure in enumerate(failures, start=1):
+        print(f'{index : >3}   {failure}')

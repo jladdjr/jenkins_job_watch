@@ -7,14 +7,17 @@
 ## Sample Usage
 
 ```
-jenkins_job_watch.py --build 100
+jenkins_job_watch.py --build 100 --sorted
 
 Getting results for:
 http://jenkins/job/My_Integration_Test/100/
 My test run description
 2020-11-11
 
-... TBD ...     # TODO
+Failures:
+  1   test_bar
+  2   test_baz
+  3   test_foo
 ```
 
 ## Configuration
