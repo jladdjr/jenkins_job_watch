@@ -20,7 +20,7 @@ DEFAULT_JOB = 'Test_Tower_Yolo_Express'
 
 parser = argparse.ArgumentParser(description='Watch results of jenkins build')
 parser.add_argument('--build', dest='build', type=int, required=True, help='Build id')
-parser.add_argument('--job', dest='job', type=int, help='Job name')
+parser.add_argument('--job', dest='job', help='Job name')
 parser.add_argument('--sorted', dest='sort_results', action="store_true", help='Sort results')
 parser.add_argument('--jenkins-host', dest='jenkins_host', help='jenkins url')
 parser.add_argument('--jenkins-username', dest='jenkins_username', help='jenkins username')
